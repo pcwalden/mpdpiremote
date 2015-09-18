@@ -1,0 +1,51 @@
+[DEFAULT]
+
+[preferencemenu]
+# preference menu choices [parsed by eval()]
+menu_choices = 'Mpd Server','Volume Increment','Bklght Duration','Info Interval','Display Info','Snooze [Minutes]'
+Mpd_Choices = MpdPreferences().mpdnames()
+Mpd_value = preferredmpd
+Mpd_on_value_change = reconnect_clients()
+Volume_choices = '1','2','3','5','10'
+Volume_value = volumeincrement
+Bklght_choices = '-1.0','0.0','30.0'
+Bklght_value = backlight_duration
+Info_choices = '5','10','20','30','60'
+Info_value = info_interval
+Display_choices = 'Nothing','Time','Weather','Alternate'
+Display_value = display_info
+Snooze_choices = '5','10','20','30','60'
+Snooze_value = snooze_interval
+
+[staticpreferences]
+# static preferences are set at run time only.
+
+# logging level. uses standard logging: DEBUG, INFO, WARNING, ERROR
+# default is WARNING
+;log_level = WARNING
+# logging file. Used when in daemon mode.
+log_file = ~/.mpdremote.log
+
+# ping interval, in seconds. keep-alive ping of the mpd command channel.
+#    Should <60 secs
+ping_interval = 59.0
+
+# time format (%% to prevent interpolation of %) [see time.strftime()]
+# line 1: HH:MM in 12 hour clock with AM or PM
+ping_timeformat1 = %%I:%%M %%p
+# line 2: DoW Mon Day Year
+ping_timeformat2 = %%a %%b %%d %%Y
+
+# weather station list
+##Go to http://www.wunderground.com/wundermap/ and find a weather station near
+##you. Click on a temperature bubble for that area. When the window pops up,
+##click on hypertext link with the station ID, then on the bottom right of the
+##page, click on the Current Conditions XML. Thats your link! Good luck!
+weather_stations = ({"location":"Bellingham", "id":"KBLI"},
+                   {"location":"Edgemoor", "id":"KWABELLI80"},
+                   {"location":"Palo Alto", "id":"KCAPALOA15"},
+                   {"location":"Mesa", "id":"KIWA"})
+
+[preferences]
+# preferences can be changed by the preference menuing system.
+# do not add anything here as it will be overriden
