@@ -826,10 +826,19 @@ def idleloop():
                         firstpass = False
 ##                    event = MPD2.idle()
                     MPD2.send_idle()
-                    # do this periodically, e.g. in event loop
-                    canRead = select([MPD2], [], [])[0]
+                    # wait for event with 5 minute timeout
+                    canRead = select([MPD2], [], [], 300.0)[0]
+                    logging.debug(str(canRead))
                     if canRead:
+                        logging.debug('retrieving idle event')
                         event = MPD2.fetch_idle()
+                    else: # timeout, have to reset idle logic
+                        try:
+                            logging.debug('idle timeout: send noidle')
+                            MPD2.noidle()
+                        except (CommandError, ConnectionError):
+                            logging.debug('exception on noidle')
+                            pass
                 if 'playlist' in event:
                     logging.debug('process '+str(event))
                     with MPD2, LM:
@@ -860,7 +869,7 @@ def idleloop():
                     logging.debug('ignored event: '+str(event))
             except (PendingCommandError, SocketTimeout, SocketError) as to:
                 if not stop_now:
-                    logging.warning('MPD2 problem, disconnecting: '+str(to))
+                    logging.warning(str(to)+': MPD2 problem, disconnecting: '+str(to))
                 with MPD2, LM:
                     try:
                         MPD2.disconnect()
@@ -869,7 +878,7 @@ def idleloop():
                     if not stop_now:
                         LM.marquee_start('MPD2 reconnecting', str(to))
             except (ConnectionError, IOError) as exp:
-                logging.info('Need to establish connection for MPD2')
+                logging.info(str(exp)+': Need to establish connection for MPD2')
                 mpdrec = MpdPreferences().preferredClient(config)
                 if mpdrec['host']:
                     try:
