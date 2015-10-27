@@ -411,6 +411,10 @@ class MPDCurrentPlaylist:
             return 'no play queue'
         plsmaxidx = self.currplslen - 1
         self.index = min(max(0, self.index),plsmaxidx)
+        logging.info(
+                'Selecting <'+
+                MPDSongEntry(self.mpd_client.playlistid()[self.index]).title()+
+                '> in playqueue')
         self.mpd_client.play(str(self.index))
     
     def deletesong(self):
@@ -419,7 +423,15 @@ class MPDCurrentPlaylist:
             return 'no play queue'
         plsmaxidx = self.currplslen - 1
         self.index = min(max(0, self.index),plsmaxidx)
+        logging.info(
+                'Deleting <'+
+                MPDSongEntry(self.mpd_client.playlistid()[self.index]).title()+
+                '> from playqueue')
         self.mpd_client.delete(str(self.index))
+    
+    def clearlist(self):
+        logging.info('Clearing playlist')
+        self.mpd_client.clear()
 
 class MPDPlaylists:
     def __init__(self, mpd_client):
@@ -1037,8 +1049,9 @@ def main():
     )
     FSM.add_state(State('playqueue', 'Play Queue')
                   .add_enterhandlers([
-                      lambda ev, prev, nxt: LM.marquee_start('Playqueue>',
-                                                          [left,updown,right]),])
+                      lambda ev, prev, nxt:
+                      LM.marquee_start('Playqueue>',[left,updown,right,'2-clear']),
+                      ])
                   .add_eventhandler('return', 'idle')
                   .add_eventhandler('left', 'idle')
                   .add_eventhandler('up', 'preferences')
@@ -1046,7 +1059,12 @@ def main():
                   .add_eventhandler('right', 'songselect', [
                       lambda ev, prev, nxt:
                       mpdcurrplaylist.updatelist(),
-                      ]))
+                      ])
+                  .add_eventhandler('2key', 'idle', [
+                      lambda ev, prev, nxt:
+                      mpdcurrplaylist.clearlist(),
+                      ])
+                  )
     FSM.add_state(State('songselect', 'Song n')
                   .add_enterhandlers([
                       lambda ev, prev, nxt:
