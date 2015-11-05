@@ -12,15 +12,18 @@ class MpdPreferences:
         
 # Need avahi-utils installed
         try:
+            logger.debug('starting avahi search for mpd servers')
             mpd_services = subprocess.check_output(['avahi-browse','-tkrfp','_mpd._tcp'],
                                                    universal_newlines=True)
 ## mpd_services should look like this
 ## +;wlan0;IPv4;PiMusic\032Player;_mpd._tcp;local
 ## =;wlan0;IPv4;PiMusic\032Player;_mpd._tcp;local;walden9.local;192.168.1.108;6600;
+            logger.debug('avahi search returned: \n'+mpd_services)
             mpd_services = mpd_services.splitlines()
             for mpd_service in mpd_services:
                 mpd_service_list = mpd_service.split(";")
                 if mpd_service_list[0] == "=":
+                    logger.debug('found mpd service: '+mpd_service_list[3])
                     self.mpd_services_list.append({'name':mpd_service_list[3].replace("\\032"," "),
                              'host':mpd_service_list[6],
                              'address':mpd_service_list[7],

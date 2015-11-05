@@ -891,30 +891,35 @@ def idleloop():
                         LM.marquee_start('MPD2 reconnecting', str(to))
             except (ConnectionError, IOError) as exp:
                 logging.info(str(exp)+': Need to establish connection for MPD2')
-                mpdrec = MpdPreferences().preferredClient(config)
-                if mpdrec['host']:
-                    try:
-                        with MPD2:
-                            MPD2.connect(mpdrec['host'],
-                                         mpdrec['port'])
-                        logging.info('MPD2 connected to '+mpdrec['name'])
-                    except ConnectionError as err:
-                        if str(err) == "already connected":
-                            MPD2.disconnect()
-                        logging.warning('MPD2 connect failed: '+str(err))
-                        logging.info('MPD2 will try again')
-                        with LM:
-                            LM.marquee_start('MPD2 connect failed', str(err))
-                    except (SocketError, SocketTimeout, IOError) as ex:
-                        logging.warning('MPD2 connect failed: '+str(ex))
-                        logging.info('MPD2 will try again in 60 secs')
-                        with LM:
-                            LM.marquee_start('MPD2 connect failed', str(ex))
-                        time.sleep(60)
-                else: # the mpd server had gone off-line
-                    logging.warning('MPD2 server '+mpdrec['name']+' is no longer available')
+                if str(exp) == "Connection lost while reading line":
+                    logging.debug('MPD2 idle lost connection during read')
                     logging.info('MPD2 will try again in 60 secs')
                     time.sleep(60)
+                else:
+                    mpdrec = MpdPreferences().preferredClient(config)
+                    if mpdrec['host']:
+                        try:
+                            with MPD2:
+                                MPD2.connect(mpdrec['host'],
+                                             mpdrec['port'])
+                            logging.info('MPD2 connected to '+mpdrec['name'])
+                        except ConnectionError as err:
+                            if str(err) == "already connected":
+                                MPD2.disconnect()
+                            logging.warning('MPD2 connect failed: '+str(err))
+                            logging.info('MPD2 will try again')
+                            with LM:
+                                LM.marquee_start('MPD2 connect failed', str(err))
+                        except (SocketError, SocketTimeout, IOError) as ex:
+                            logging.warning('MPD2 connect failed: '+str(ex))
+                            logging.info('MPD2 will try again in 60 secs')
+                            with LM:
+                                LM.marquee_start('MPD2 connect failed', str(ex))
+                            time.sleep(60)
+                    else: # the mpd server had gone off-line
+                        logging.warning('MPD2 server '+mpdrec['name']+' is no longer available')
+                        logging.info('MPD2 will try again in 60 secs')
+                        time.sleep(60)
             event = {}
             logging.debug('MPD2 idle loop bottom')
         logging.info('MPD2 idleloop terminating')
