@@ -1,3 +1,12 @@
+#! /usr/bin/python3
+
+"""
+Manages the pifacecad 16x2 LCD display.
+Provides a marquee scroll to allow up to 2x40 character banners to display.
+Provides mutex based locking to prevent display corruption by multiple threads.
+Manages backlight timing.
+"""
+
 import time
 import logging
 import threading
