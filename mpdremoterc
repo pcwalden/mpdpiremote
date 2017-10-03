@@ -43,7 +43,6 @@ ping_timeformat2 = %%a %%b %%d %%Y
 ##page, click on the Current Conditions XML. Thats your link! Good luck!
 weather_stations = ({"location":"Bellingham", "id":"KBLI"},
                    {"location":"Edgemoor", "id":"KWABELLI80"},
-                   {"location":"Palo Alto", "id":"KCAPALOA15"},
                    {"location":"Mesa", "id":"KIWA"})
 
 [preferences]
